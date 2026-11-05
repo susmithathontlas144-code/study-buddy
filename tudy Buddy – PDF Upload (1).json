@@ -1,0 +1,162 @@
+{
+  "name": "tudy Buddy – PDF Upload",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Study Buddy - Upload Course Notes",
+        "formDescription": "Upload your syllabus or notes (PDF, TXT, DOCX, CSV). They are added to the knowledge base Study Buddy searches.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Course Notes",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf,.txt,.docx,.csv,.md",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "path": "study-buddy-upload",
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Notes uploaded. You can now ask Study Buddy questions about them."
+            }
+          }
+        }
+      },
+      "id": "bef29e82-6f04-4717-8487-2da59eca0fad",
+      "name": "Upload Course Notes",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        208
+      ],
+      "webhookId": "9bb8afbf-28a8-4f87-8f34-a964b9189a7f"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "id": "7eeb14b2-ef30-4790-a01d-896403a71194",
+      "name": "Add to Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.4,
+      "position": [
+        256,
+        208
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "690f4ae2-f45b-40d1-9714-19f4cc0cfd4c",
+      "name": "Embeddings Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        432
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qVcM6hAkm8jGlPqY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "id": "99469e78-2ed7-41aa-8eb8-f3d2b6829058",
+      "name": "Notes Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "id": "e985403d-e7ff-4042-90cf-9cfe2bcf952f",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        432,
+        640
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Upload Course Notes": {
+      "main": [
+        [
+          {
+            "node": "Add to Knowledge Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Add to Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notes Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Add to Knowledge Base",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Notes Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7e2757ef-2284-47f3-8c18-86e2974dd378",
+  "meta": {
+    "instanceId": "dd7da752806e590f64624f76b08513a7ef5923c1682e5bb3721c1622a41c13de"
+  },
+  "nodeGroups": [],
+  "id": "zlRPBqfAUezEZ3yU",
+  "tags": []
+}
